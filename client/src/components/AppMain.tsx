@@ -3,6 +3,7 @@ import UploadForm from "./UploadForm/UploadForm"
 import PortfolioTable from "./PortfolioTable/PortfolioTable"
 import PortfolioSummary from "./PortfolioSummary/PortfolioSummary"
 import { PortfolioResult } from "../types"
+import LastUpdatedInfo from "./LastUpdatedInfo"
 
 const AppMain = () => {
   const [file, setFile] = useState<File | null>(null)
@@ -71,7 +72,11 @@ const AppMain = () => {
               <i className="bx bx-check-circle text-lg" /> Portfolio successfully analyzed
             </p>
           </div>
-
+          {portfolio?.lastUpdated && (
+            <div className="text-left text-sm text-gray-500 dark:text-gray-400 mb-3">
+              <LastUpdatedInfo timestamp={portfolio.lastUpdated} />
+            </div>
+          )}
           <PortfolioTable portfolio={portfolio} />
           <PortfolioSummary data={portfolio} />
         </>

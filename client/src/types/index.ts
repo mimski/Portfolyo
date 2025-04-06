@@ -14,6 +14,7 @@ export type Holding = {
     currentValue: number
     totalWinLoss: number
     totalWinLossPercentage: number
+    lastUpdated: string
     holdings: Holding[]
   }
   
