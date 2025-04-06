@@ -1,4 +1,4 @@
-import { PortfolioResult } from "../types"
+import { PortfolioResult } from "../../types"
 
 const PortfolioSummary = ({ data }: { data: PortfolioResult }) => {
   return (
