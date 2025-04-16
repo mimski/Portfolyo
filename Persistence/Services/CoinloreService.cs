@@ -44,20 +44,35 @@ public class CoinloreService : ICoinPriceService
 
         if (missingSymbols.Count > 0)
         {
-            _logger.LogInformation("Fetching {Count} symbols from Coinlore", missingSymbols.Count);
+            _logger.LogInformation("Fetching full list from Coinlore to find {Count} symbols", missingSymbols.Count);
 
-            var response = await _client.GetFromJsonAsync<CoinloreResponse>("api/tickers/?start=0&limit=100");
+            int start = 0;
+            int limit = 100;
+            var allCoins = new List<CoinloreCoin>();
 
-            if (response == null || response.Data == null)
+            while (true)
             {
-                throw new Exception("Coinlore response is empty or invalid");
+                var response = await _client.GetFromJsonAsync<CoinloreResponse>($"api/tickers/?start={start}&limit={limit}");
+
+                if (response?.Data == null || response.Data.Count == 0)
+                {
+                    break; 
+                }
+
+                allCoins.AddRange(response.Data);
+
+                if (response.Data.Count < limit)
+                    break;
+
+                start += limit;
             }
 
             foreach (var symbol in missingSymbols)
             {
-                var coin = response.Data
-                    .FirstOrDefault(c => c.symbol.Equals(symbol, StringComparison.OrdinalIgnoreCase));
-                if (coin == null || !decimal.TryParse(coin.price_usd, out decimal priceUsd))
+                var coin = allCoins.FirstOrDefault(c =>
+                    c.symbol.Equals(symbol, StringComparison.OrdinalIgnoreCase));
+
+                if (coin == null || !decimal.TryParse(coin.price_usd, out var priceUsd))
                 {
                     _logger.LogWarning("Coin {Symbol} not found or parse error. Defaulting price to 0", symbol);
                     result[symbol] = 0;
